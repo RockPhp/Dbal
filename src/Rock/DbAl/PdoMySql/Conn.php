@@ -11,6 +11,8 @@ class Rock_DbAl_PdoMySql_Conn extends Rock_DbAl_Pdo_Conn implements Rock_DbAl_If
         $arrayConn['host'] = $parseUrl['host'];
         $arrayConn['dbname'] = preg_replace("/[^A-z0-9_]/", '', $parseUrl['path']);
         $pdoDsn = 'mysql:host=' . $arrayConn['host'];
+        $port = empty($parseUrl['port']) ? 3306 : $parseUrl['port'];
+        $pdoDsn .= ';port=' . $port;
         $pdoDsn .= ';dbname=' . $arrayConn['dbname'];
         parent::connect($pdoDsn, $user, $passwd);
     }
