@@ -26,6 +26,7 @@ class Rock_DbAl_Pdo_Conn extends Rock_DbAl_ConnDrv
     protected function connect($dsn, $user = null, $passwd = null)
     {
         $this->connection = new PDO($dsn, $user, $passwd);
+        $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
     protected function disconnect()
@@ -58,26 +59,12 @@ class Rock_DbAl_Pdo_Conn extends Rock_DbAl_ConnDrv
             $this->beginTransaction();
         }
         $rs = $this->connection->prepare($sql);
-        $this->checkErrors($rs);
         $rs->execute($arrayBind);
-        $this->checkErrors($rs);
         
         if (! $this->openedTrans && $this->autoCommit) {
             $this->commit();
         }
         return $rs;
-    }
-
-    protected function checkErrors($rs)
-    {
-        if ($rs instanceof PDOStatement) {
-            $errorCode = $rs->errorCode();
-            if (! empty($errorCode) && $errorCode != '00000') {
-                throw new Exception('Erro query ' . $this->getErrorMsg());
-            }
-        } else if ($rs === false) {
-            throw new Exception('Erro query ' . $this->getErrorMsg());
-        }
     }
 
     protected function setAutoCommit($autocommit = true)
