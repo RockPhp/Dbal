@@ -23,9 +23,9 @@ class Rock_DbAl_Pdo_Conn extends Rock_DbAl_ConnDrv
         }
     }
 
-    protected function connect($dsn, $user = null, $passwd = null)
+    protected function connectWithOptions($dsn, $user = null, $passwd = null, $options = null)
     {
-        $this->connection = new PDO($dsn, $user, $passwd);
+        $this->connection = new PDO($dsn, $user, $passwd, $options);
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
@@ -60,7 +60,7 @@ class Rock_DbAl_Pdo_Conn extends Rock_DbAl_ConnDrv
         }
         $rs = $this->connection->prepare($sql);
         $rs->execute($arrayBind);
-        
+
         if (! $this->openedTrans && $this->autoCommit) {
             $this->commit();
         }
