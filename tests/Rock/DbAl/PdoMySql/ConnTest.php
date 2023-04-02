@@ -1,7 +1,6 @@
 <?php
-use PHPUnit\Framework\TestCase;
 
-final class Rock_DbAl_PdoMySql_ConnTest extends TestCase
+final class ConnTest extends PHPUnit_Framework_TestCase
 {
 
     /**
@@ -103,14 +102,41 @@ final class Rock_DbAl_PdoMySql_ConnTest extends TestCase
      *
      * @test
      */
+    public function createInsertSelectDrop()
+    {
+        $mysqlConn = new Rock_DbAl_PdoMySql_Conn();
+        $initCommand = 'SET NAMES utf8';
+        $dsn = "jdbc:mysql://127.0.0.1:3306/testdb?init=$initCommand";
+        $mysqlConn->connect($dsn, 'root', '123456');
+        $mysqlConn->runQuery("CREATE TABLE testdb.sometable (
+	somefield varchar(100) NULL
+)
+ENGINE=InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_general_ci");
+        $mysqlConn->runQuery("INSERT INTO testdb.sometable (somefield) values (?)", array(
+            'áéíóúçãâêô'
+        ));
+        $stmt = $mysqlConn->runQuery("SELECT * FROM testdb.sometable");
+        $result = $stmt->nextArray();
+        $this->assertEquals(array(
+            'somefield' => 'áéíóúçãâêô'
+        ), $result);
+        $stmt = $mysqlConn->runQuery("DROP TABLE testdb.sometable");
+        $mysqlConn->disconnect();
+    }
+
+    /**
+     *
+     * @test
+     */
     public function connectSelectInsertDbCharset()
     {
         $mysqlConn = new Rock_DbAl_PdoMySql_Conn();
         $dsn = "jdbc:mysql://127.0.0.1:3306/testdb?characterEncoding=UTF-8&after8012=true";
         $mysqlConn->connect($dsn, 'root', '123456');
+
         $stmt = $mysqlConn->runQuery("select 'something'");
-        $total = $stmt->numRows();
-        $this->assertEquals(1, $total);
         $result = $stmt->nextArrayInt();
         $this->assertEquals('something', $result[0]);
 
@@ -121,6 +147,23 @@ final class Rock_DbAl_PdoMySql_ConnTest extends TestCase
         $mysqlConn->runQuery("INSERT INTO testtable (utf8column) values (?)", array(
             'áéíóúçãâêô'
         ));
+
+        $mysqlConn->disconnect();
+    }
+
+    /**
+     *
+     * @test
+     */
+    public function connectCount()
+    {
+        $mysqlConn = new Rock_DbAl_PdoMySql_Conn();
+        $dsn = "jdbc:mysql://127.0.0.1:3306/testdb?characterEncoding=UTF-8&after8012=true";
+        $mysqlConn->connect($dsn, 'root', '123456');
+
+        $stmt = $mysqlConn->runQuery("select 'something'");
+        $total = $stmt->numRows();
+        $this->assertEquals(1, $total);
 
         $mysqlConn->disconnect();
     }

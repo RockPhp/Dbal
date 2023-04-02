@@ -3,11 +3,36 @@
 class Rock_DbAl_Pdo_Stmt implements Rock_DbAl_Iface_IStmt
 {
 
+    /**
+     *
+     * @var PDO
+     */
+    protected $conn;
+
+    /**
+     *
+     * @var PDOStatement
+     */
     protected $stmt;
 
-    public function __construct(PDOStatement $stmt)
+    /**
+     *
+     * @var string
+     */
+    protected $query;
+
+    /**
+     *
+     * @var array
+     */
+    protected $arrayBind;
+
+    public function __construct(PDOStatement $stmt, PDO $conn = null, $query = null, $arrayBind = array())
     {
         $this->stmt = $stmt;
+        $this->conn = $conn;
+        $this->query = $query;
+        $this->arrayBind = $arrayBind;
     }
 
     public function nextObject($upperCase = false)
@@ -43,7 +68,6 @@ class Rock_DbAl_Pdo_Stmt implements Rock_DbAl_Iface_IStmt
 
     public function numRows()
     {
-        // nao funciona no pdo, implementar
         return $this->stmt->rowCount();
     }
 }

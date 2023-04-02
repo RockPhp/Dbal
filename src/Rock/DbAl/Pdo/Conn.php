@@ -3,6 +3,12 @@
 class Rock_DbAl_Pdo_Conn extends Rock_DbAl_ConnDrv
 {
 
+    /**
+     *
+     * @var PDO
+     */
+    protected $connection;
+
     protected $autoCommit = true;
 
     protected $openedTrans = false;

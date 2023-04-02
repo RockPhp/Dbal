@@ -89,6 +89,7 @@ class Rock_DbAl_PdoMySql_Conn extends Rock_DbAl_Pdo_Conn implements Rock_DbAl_If
     {
         $pdoDsn = $this->getMysqlPdoDsn($dsn);
         parent::connectWithOptions($pdoDsn, $user, $passwd, $this->parsePdoOptions($dsn));
+        $this->connection->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
     }
 
     public function disconnect()

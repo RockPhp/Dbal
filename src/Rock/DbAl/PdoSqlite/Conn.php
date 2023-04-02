@@ -8,7 +8,7 @@ class Rock_DbAl_PdoSqlite_Conn extends Rock_DbAl_Pdo_Conn implements Rock_DbAl_I
         $parseUrl = parse_url($dsn);
         $parseUrl = parse_url($parseUrl['path']);
         $pdoDsn = 'sqlite:' . trim($parseUrl['path']);
-        parent::connect($pdoDsn);
+        parent::connectWithOptions($pdoDsn);
     }
 
     public function disconnect()
@@ -29,7 +29,7 @@ class Rock_DbAl_PdoSqlite_Conn extends Rock_DbAl_Pdo_Conn implements Rock_DbAl_I
     {
         $sql = $this->addLimit($sql, $start, $limit);
         $stmt = parent::runQuery($sql, $arrayBind);
-        return new Rock_DbAl_PdoSqlite_Stmt($stmt);
+        return new Rock_DbAl_PdoSqlite_Stmt($stmt, $this->connection, $sql, $arrayBind);
     }
 
     public function setAutoCommit($autocommit = true)
