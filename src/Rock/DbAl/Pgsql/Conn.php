@@ -23,27 +23,27 @@ class Rock_DbAl_Pgsql_Conn extends Rock_DbAl_ConnDrv implements Rock_DbAl_Iface_
         }
     }
 
-    public function connect($dsn, $user = null, $passwd = null)
+    public function getPgConnectDsn($dsn, $user = null, $passwd = null)
     {
-        $arrayConn = array();
-        $parseUrl = parse_url($dsn);
-        $parseUrl = parse_url($parseUrl['path']);
-        $arrayConn['dbHost'] = $parseUrl['host'];
-        $arrayConn['dbName'] = str_replace('/', '', $parseUrl['path']);
-        $arrayConn['dbPort'] = $parseUrl['port'];
-        $strConn = 'host=' . $arrayConn['dbHost'];
-        if (! empty($arrayConn['dbPort'])) {
-            $strConn .= ' port=' . $arrayConn['dbPort'];
+        $dsnArray = parse_url($dsn);
+        $parseUrl = parse_url($dsnArray['path']);
+        $port = empty($parseUrl['port']) ? 5432 : $parseUrl['port'];
+        $dbName = preg_replace("/[^A-z0-9_]/", '', $parseUrl['path']);
+        $strConn = 'host=' . $parseUrl['host'];
+        $strConn .= ' port=' . $port;
+        $strConn .= ' dbname=' . $dbName;
+        if (! empty($user)) {
+            $strConn .= ' user=' . $user;
         }
-        $strConn .= ' dbname=' . $arrayConn['dbName'];
-        $strConn .= ' user=' . $user;
         if (! empty($passwd)) {
             $strConn .= ' password=' . $passwd;
         }
-        set_error_handler(array(
-            'Rock_DbAl_ConnDrv',
-            'errorHandler'
-        ));
+        return $strConn;
+    }
+
+    public function connect($dsn, $user = null, $passwd = null)
+    {
+        $strConn = $this->getPgConnectDsn($dsn, $user, $passwd);
         $this->connection = pg_connect($strConn);
         restore_error_handler();
     }
@@ -90,7 +90,7 @@ class Rock_DbAl_Pgsql_Conn extends Rock_DbAl_ConnDrv implements Rock_DbAl_Iface_
             'errorHandler'
         ));
         $sqlarr = $this->checkBind($sql, $arrayBind);
-        
+
         if (! $this->autoCommit) {
             $this->beginTransaction();
         }
